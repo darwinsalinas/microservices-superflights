@@ -1,0 +1,96 @@
+version: '3.7'
+
+services:
+  app:
+    # network_mode: "host"
+    image: app_vuelos:v2
+    container_name: app_vuelos
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    env_file: .env.example
+    ports:
+        - 3000:3000
+    depends_on:
+      - mongodb
+      - rabbitmq
+    restart: always
+    networks:
+      - ms_nestjs
+
+  flights-us:
+    # network_mode: "host"
+    image: flights-us:v2
+    container_name: flights-us
+    build:
+      context: ./flights-us
+      dockerfile: Dockerfile
+    env_file: .env.example
+    depends_on:
+      - mongodb
+      - rabbitmq
+    restart: always
+    networks:
+      - ms_nestjs
+
+  passengers-us:
+    # network_mode: "host"
+    image: passengers-us:v2
+    container_name: passengers-us
+    build:
+      context: ./passengers-us
+      dockerfile: Dockerfile
+    env_file: .env.example
+    depends_on:
+      - mongodb
+      - rabbitmq
+    restart: always
+    networks:
+      - ms_nestjs
+
+  users-us:
+    # network_mode: "host"
+    image: users-us:v2
+    container_name: users-us
+    build:
+      context: ./users-us
+      dockerfile: Dockerfile
+    env_file: .env.example
+    depends_on:
+      - mongodb
+      - rabbitmq
+    restart: always
+    networks:
+      - ms_nestjs
+
+  rabbitmq:
+    # network_mode: "host"
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    expose:
+      - 5672
+      - 15672
+    restart: always
+    networks:
+      - ms_nestjs
+
+  mongodb:
+    # network_mode: "host"
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    volumes:
+      - mongodb:/data/db
+    expose:
+      - 27017
+    networks:
+      - ms_nestjs
+
+volumes:
+  mongodb:
+
+networks:
+  ms_nestjs:
